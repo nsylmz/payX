@@ -22,7 +22,7 @@ public class Account {
 	
 	private String id;
 	
-    private String userId;
+    private String customerId;
     
     @Indexed(unique=true)
     private Long accountNumber;

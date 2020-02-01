@@ -1,4 +1,4 @@
-package com.nsylmz.payx.account.util;
+package com.nsylmz.payx.account.service;
 
 import java.util.Objects;
 
