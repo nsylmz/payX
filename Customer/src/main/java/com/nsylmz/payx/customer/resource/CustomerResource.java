@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nsylmz.payx.customer.exception.CustomerNotFoundException;
@@ -44,6 +43,12 @@ public class CustomerResource {
 	private Flux<Customer> getAllCustomers() {
 		return customerRepository.findAll().map(existingCustomer -> existingCustomer)
 				.switchIfEmpty(Mono.error(new CustomerNotFoundException("No Customer Found In DB!!!")));
+	}
+	
+	@GetMapping("/customer/checkCustomer/{customerId}")
+	private Mono<Boolean> checkCustomer(@PathVariable String customerId) {
+		return customerRepository.findById(customerId).map(existingCustomer -> true)
+				.switchIfEmpty(Mono.just(false));
 	}
 	
 	@GetMapping("/customer/{customerId}")
