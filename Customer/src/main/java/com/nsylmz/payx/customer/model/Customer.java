@@ -4,10 +4,12 @@ import java.util.Date;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -21,7 +23,13 @@ import lombok.RequiredArgsConstructor;
 @Document
 public class Customer {
 	
+	@Transient
+    public static final String SEQUENCE_NAME = "customer_number_sequence";
+	
 	private String id;
+	
+	@NotNull(message = "CustomerNumber can't be empty!!!")
+	private Long customerNumber;
 	
 	@NotEmpty(message = "First name can't be empty!")
 	private String firstName;

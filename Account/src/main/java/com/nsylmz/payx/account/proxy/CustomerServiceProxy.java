@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name="customer", url="localhost:8090")
 public interface CustomerServiceProxy {
 	
-	@GetMapping("/customer/checkCustomer/{customerId}")
-	public Boolean checkCustomer(@PathVariable("customerId") String customerId);
+	@GetMapping("/customer/checkCustomer/{customerNumber}")
+	public Boolean checkCustomer(@PathVariable("customerNumber") long customerNumber);
 
 }

@@ -1,4 +1,4 @@
-package com.nsylmz.payx.customer.model;
+package com.nsylmz.payx.customer.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class Credentials {
+public class CredentialsQueryDTO {
 	
 	@NotEmpty(message = "Email address can't be empty!")
 	@Email(message = "Invalid Email Address!")

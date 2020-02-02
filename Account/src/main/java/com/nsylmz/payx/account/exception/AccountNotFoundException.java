@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @SuppressWarnings("serial")
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class AccouuntNotFoundException extends RuntimeException {
+public class AccountNotFoundException extends RuntimeException {
 	
-	public AccouuntNotFoundException(String message) {
+	public AccountNotFoundException(String message) {
 		super(message);
 	}
 

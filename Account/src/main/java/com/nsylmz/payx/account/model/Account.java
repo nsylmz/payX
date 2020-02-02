@@ -2,6 +2,8 @@ package com.nsylmz.payx.account.model;
 
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -22,15 +24,18 @@ public class Account {
 	
 	private String id;
 	
-    private String customerId;
+	@NotNull(message = "CustomerNumber can't be empty!!!")
+    private Long customerNumber;
     
     @Indexed(unique=true)
+    @NotNull(message = "AccountrNumber can't be empty!!!")
     private Long accountNumber;
     
     private AccountStatus accountStatus = AccountStatus.ACTIVE;
     
     private AccountType accountType;
     
+    @NotNull(message = "Account Balance can't be empty!!!")
     private Double balance;
     
     @CreatedDate

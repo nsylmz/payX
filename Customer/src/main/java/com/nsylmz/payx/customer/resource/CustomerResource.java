@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nsylmz.payx.customer.dto.CredentialsQueryDTO;
 import com.nsylmz.payx.customer.exception.CustomerNotFoundException;
-import com.nsylmz.payx.customer.model.Credentials;
 import com.nsylmz.payx.customer.model.Customer;
 import com.nsylmz.payx.customer.repository.CustomerRepository;
+import com.nsylmz.payx.customer.service.SequenceGenerator;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,9 +34,13 @@ public class CustomerResource {
 	@Autowired
 	private CustomerRepository customerRepository;
 	
+	@Autowired
+	private SequenceGenerator sequenceGenerator;
+	
 	@PostMapping("/signUp")
 	private Mono<ResponseEntity<Void>> signUp(@Valid @RequestBody Customer customer) {
-		return customerRepository.save(customer).map(savedCustomer -> ResponseEntity.created(URI.create("/customer/" + savedCustomer.getId()))
+		customer.setCustomerNumber(sequenceGenerator.generateAccountNumberSequence(Customer.SEQUENCE_NAME));
+		return customerRepository.save(customer).map(savedCustomer -> ResponseEntity.created(URI.create("/customer/" + savedCustomer.getCustomerNumber()))
 				.contentType(MediaType.APPLICATION_JSON).build());
 	}
 	
@@ -45,21 +50,23 @@ public class CustomerResource {
 				.switchIfEmpty(Mono.error(new CustomerNotFoundException("No Customer Found In DB!!!")));
 	}
 	
-	@GetMapping("/customer/checkCustomer/{customerId}")
-	private Mono<Boolean> checkCustomer(@PathVariable String customerId) {
-		return customerRepository.findById(customerId).map(existingCustomer -> true)
+	@GetMapping("/customer/checkCustomer/{customerNumber}")
+	private Mono<Boolean> checkCustomer(@PathVariable long customerNumber) {
+		return customerRepository.findOne(Example.of(new Customer(null, customerNumber, null, null, null, null, null, null, null, null)))
+				.map(existingCustomer -> true)
 				.switchIfEmpty(Mono.just(false));
 	}
 	
-	@GetMapping("/customer/{customerId}")
-	private Mono<ResponseEntity<Customer>> getCustomer(@PathVariable String customerId) {
-		return customerRepository.findById(customerId).map(existingCustomer -> ResponseEntity.ok(existingCustomer))
-				.switchIfEmpty(Mono.error(new CustomerNotFoundException("customerId: " + customerId + " is not found!!!")));
+	@GetMapping("/customer/{customerNumber}")
+	private Mono<ResponseEntity<Customer>> getCustomer(@PathVariable Long customerNumber) {
+		return customerRepository.findOne(Example.of(new Customer(null, customerNumber, null, null, null, null, null, null, null, null)))
+				.map(existingCustomer -> ResponseEntity.ok(existingCustomer))
+				.switchIfEmpty(Mono.error(new CustomerNotFoundException("customerNumber: " + customerNumber + " is not found!!!")));
 	}
 	
 	@PostMapping("/signIn")
-	private Mono<ResponseEntity<Object>> signIn(@Valid @RequestBody Credentials credentials) {
-		return customerRepository.findOne(Example.of(new Customer(null, null, null, credentials.getEmail(), null, null, null, null, null)))
+	private Mono<ResponseEntity<Object>> signIn(@Valid @RequestBody CredentialsQueryDTO credentials) {
+		return customerRepository.findOne(Example.of(new Customer(null, null, null, null, credentials.getEmail(), null, null, null, null, null)))
 				.flatMap(existingCustomer -> {
 					if (existingCustomer == null) {
 						return Mono.error(new CustomerNotFoundException("No Customer matched with email address: " + credentials.getEmail() + " !!!"));

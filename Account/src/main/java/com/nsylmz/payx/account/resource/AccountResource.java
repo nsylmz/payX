@@ -2,8 +2,6 @@ package com.nsylmz.payx.account.resource;
 
 import java.net.URI;
 
-import javax.security.auth.login.AccountNotFoundException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nsylmz.payx.account.exception.AccountNotFoundException;
 import com.nsylmz.payx.account.exception.CustomerNotFoundException;
 import com.nsylmz.payx.account.model.Account;
 import com.nsylmz.payx.account.model.AccountStatus;
@@ -42,75 +41,82 @@ public class AccountResource {
 	@Autowired
 	private CustomerServiceProxy customerServiceProxy;
 	
-	@GetMapping("/accounts/getAccount/{accountId}")
+	@GetMapping("/accounts/getAccountById/{accountId}")
 	private Mono<ResponseEntity<Account>> retrieveAccountById(@PathVariable String accountId) {
 		return accountRepository.findById(accountId)
 				.map(account -> ResponseEntity.ok(account))
 				.switchIfEmpty(Mono.error(new AccountNotFoundException("accountId: " + accountId + " is not found!!!")));
 	}
-	
-	@GetMapping("/accounts/{customerId}")
-	private Flux<Account> retrieveAllAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, null, null, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account belongs to given customerId: " + customerId + " !!!")));
+
+	@GetMapping("/accounts/getAccountByNumber/{accountNumber}")
+	private Mono<ResponseEntity<Account>> retrieveAccountById(@PathVariable long accountNumber) {
+		return accountRepository.retrieveAccountByAccountNumber(accountNumber)
+				.map(account -> ResponseEntity.ok(account))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("accountNumber: " + accountNumber + " is not found!!!")));
 	}
 	
-	@GetMapping("/accounts/{customerId}/account/{accountNumber}")
-	private Mono<ResponseEntity<Account>> retrieveAccountByCustomerAndAccountNumber(@PathVariable String customerId, @PathVariable Long accountNumber) {
-		return accountRepository.findOne(Example.of(new Account(null, customerId, accountNumber, null, null, null, null)))
+	@GetMapping("/accounts/{customerNumber}")
+	private Flux<Account> retrieveAllAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, null, null, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account belongs to given customerNumber: " + customerNumber + " !!!")));
+	}
+	
+	@GetMapping("/accounts/{customerNumber}/account/{accountNumber}")
+	private Mono<ResponseEntity<Account>> retrieveAccountByCustomerAndAccountNumber(@PathVariable Long customerNumber, @PathVariable Long accountNumber) {
+		return accountRepository.findOne(Example.of(new Account(null, customerNumber, accountNumber, null, null, null, null)))
 				.map(account -> ResponseEntity.ok(account))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account belongs to given customerId: " + customerId + " and is accountNumber" + accountNumber + " !!!")));
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account belongs to given customerNumber: " + customerNumber + " and is accountNumber" + accountNumber + " !!!")));
 	}
 	
 	// Active & Inactive methods
-	@GetMapping("/accounts/{customerId}/actives")
-	private Flux<Account> retrieveAllActiveAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, AccountStatus.ACTIVE, null, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account ACTIVE belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/actives")
+	private Flux<Account> retrieveAllActiveAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, AccountStatus.ACTIVE, null, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account ACTIVE belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 	
-	@GetMapping("/accounts/{customerId}/inactives")
-	private Flux<Account> retrieveAllInactiveAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, AccountStatus.INACTIVE, null, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account INACTIVE belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/inactives")
+	private Flux<Account> retrieveAllInactiveAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, AccountStatus.INACTIVE, null, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account INACTIVE belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 	
 	//Debit Methods
-	@GetMapping("/accounts/{customerId}/debits")
-	private Flux<Account> retrieveAllDebitAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, null, AccountType.DEBIT, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account DEBIT belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/debits")
+	private Flux<Account> retrieveAllDebitAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, null, AccountType.DEBIT, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account DEBIT belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 	
-	@GetMapping("/accounts/{customerId}/debitActives")
-	private Flux<Account> retrieveAllDebitAndActiveAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, AccountStatus.ACTIVE, AccountType.DEBIT, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account ACTIVE and DEBIT belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/debitActives")
+	private Flux<Account> retrieveAllDebitAndActiveAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, AccountStatus.ACTIVE, AccountType.DEBIT, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account ACTIVE and DEBIT belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 	
-	@GetMapping("/accounts/{customerId}/debitInactives")
-	private Flux<Account> retrieveAllDebitAndInactiveAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, AccountStatus.INACTIVE, AccountType.DEBIT, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account INACTIVE and DEBIT belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/debitInactives")
+	private Flux<Account> retrieveAllDebitAndInactiveAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, AccountStatus.INACTIVE, AccountType.DEBIT, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account INACTIVE and DEBIT belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 	
 	//Deposit Methods
-	@GetMapping("/accounts/{customerId}/deposits")
-	private Flux<Account> retrieveAllDepositAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, null, AccountType.DEPOSIT, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account DEPOSIT belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/deposits")
+	private Flux<Account> retrieveAllDepositAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, null, AccountType.DEPOSIT, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account DEPOSIT belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 		
-	@GetMapping("/accounts/{customerId}/depositActives")
-	private Flux<Account> retrieveAllDepositAndActiveAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, AccountStatus.ACTIVE, AccountType.DEPOSIT, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account ACTIVE and DEPOSIT belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/depositActives")
+	private Flux<Account> retrieveAllDepositAndActiveAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, AccountStatus.ACTIVE, AccountType.DEPOSIT, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account ACTIVE and DEPOSIT belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 		
-	@GetMapping("/accounts/{customerId}/depositInactives")
-	private Flux<Account> retrieveAllDepositAndInactiveAccountsOfCustomer(@PathVariable String customerId) {
-		return accountRepository.findAll(Example.of(new Account(null, customerId, null, AccountStatus.INACTIVE, AccountType.DEPOSIT, null, null)))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account INACTIVE and DEPOSIT belongs to given customerId: " + customerId + " !!!")));
+	@GetMapping("/accounts/{customerNumber}/depositInactives")
+	private Flux<Account> retrieveAllDepositAndInactiveAccountsOfCustomer(@PathVariable Long customerNumber) {
+		return accountRepository.findAll(Example.of(new Account(null, customerNumber, null, AccountStatus.INACTIVE, AccountType.DEPOSIT, null, null)))
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account INACTIVE and DEPOSIT belongs to given customerNumber: " + customerNumber + " !!!")));
 	}
 	
 	// Update account
@@ -121,97 +127,70 @@ public class AccountResource {
 	}*/
 	
 	// Open Account Methods
-	@PostMapping("/accounts/{customerId}/openDebitAccount")
-	private Mono<ResponseEntity<Void>> openDebitAccount(@PathVariable String customerId) {
-		Boolean checkCustomer = customerServiceProxy.checkCustomer(customerId);
+	@PostMapping("/accounts/{customerNumber}/openDebitAccount")
+	private Mono<ResponseEntity<Void>> openDebitAccount(@PathVariable Long customerNumber) {
+		Boolean checkCustomer = customerServiceProxy.checkCustomer(customerNumber);
 		return Mono.just(checkCustomer).flatMap(isCustomerAvailable -> {
 			if (!isCustomerAvailable) {
-				return Mono.error(new CustomerNotFoundException("Customer " + customerId + " is not found!!!"));
+				return Mono.error(new CustomerNotFoundException("Customer " + customerNumber + " is not found!!!"));
 			} else {
 				Account account = new Account();
-				account.setCustomerId(customerId);
+				account.setCustomerNumber(customerNumber);
 				account.setAccountNumber(sequenceGenerator.generateAccountNumberSequence(Account.SEQUENCE_NAME));
 				account.setAccountType(AccountType.DEBIT);
 				account.setBalance(0.00);
 				//linkTo(methodOn(AccountResource.class).retrieveAccountById(savedAccount.getId())).withRel("account").toUri())
-				return accountRepository.save(account).map(savedAccount -> ResponseEntity.created(URI.create("/accounts/getAccount/" + savedAccount.getId()))
+				return accountRepository.save(account).map(savedAccount -> ResponseEntity.created(URI.create("/accounts/getAccountByNumber/" + savedAccount.getAccountNumber()))
 						.contentType(MediaType.APPLICATION_JSON).build());
 			}
 		});
 		
 	}
 	
-	@PostMapping("/accounts/{customerId}/openDepositAccount")
-	private Mono<ResponseEntity<Void>> openDepositAccount(@PathVariable String customerId) {
-		Boolean checkCustomer = customerServiceProxy.checkCustomer(customerId);
+	@PostMapping("/accounts/{customerNumber}/openDepositAccount")
+	private Mono<ResponseEntity<Void>> openDepositAccount(@PathVariable Long customerNumber) {
+		Boolean checkCustomer = customerServiceProxy.checkCustomer(customerNumber);
 		return Mono.just(checkCustomer).flatMap(isCustomerAvailable -> {
 			if (!isCustomerAvailable) {
-				return Mono.error(new CustomerNotFoundException("Customer" + customerId + " is not found!!!"));
+				return Mono.error(new CustomerNotFoundException("Customer" + customerNumber + " is not found!!!"));
 			} else {
 				Account account = new Account();
-				account.setCustomerId(customerId);
+				account.setCustomerNumber(customerNumber);
 				account.setAccountNumber(sequenceGenerator.generateAccountNumberSequence(Account.SEQUENCE_NAME));
 				account.setAccountType(AccountType.DEPOSIT);
 				account.setBalance(0.00);
-				return accountRepository.save(account).map(savedAccount -> ResponseEntity.created(URI.create("/accounts/getAccount/" + savedAccount.getId()))
+				return accountRepository.save(account).map(savedAccount -> ResponseEntity.created(URI.create("/accounts/getAccountByNumber/" + savedAccount.getAccountNumber()))
 						.contentType(MediaType.APPLICATION_JSON).build());
 			}
 		});
 	}
 	
 	// Active Account
-	@PostMapping("/accounts/{accountId}/activeAccount")
-	private Mono<ResponseEntity<Void>> activeAccount(@PathVariable String accountId) {
-		return Mono.just(accountId).flatMap(accountRepository::findById)
+	@PostMapping("/accounts/{accountNumber}/activeAccount")
+	private Mono<ResponseEntity<Void>> activeAccount(@PathVariable long accountNumber) {
+		return accountRepository.retrieveAccountByAccountNumber(accountNumber)
 				.flatMap(account -> {
-					if (account == null) {
-						return Mono.error(new AccountNotFoundException());
-					} else if (account.getAccountStatus().equals(AccountStatus.INACTIVE)) {
+					if (account.getAccountStatus().equals(AccountStatus.INACTIVE)) {
 						account.setAccountStatus(AccountStatus.ACTIVE);
 						return accountRepository.save(account).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)));
 					} else {
-						return Mono.error(new RuntimeException("Given Account " + accountId + " is already active!!!"));
+						return Mono.error(new RuntimeException("Given Account " + accountNumber + " is already active!!!"));
 					}
-				});
+				}).switchIfEmpty(Mono.error(new AccountNotFoundException("AccountNumber: " + accountNumber + " is not found!!!")));
 	}
 	
 	// Inactive Account
-	@PostMapping("/accounts/{accountId}/inactiveAccount")
-	private Mono<ResponseEntity<Void>> inactiveAccount(@PathVariable String accountId) {
-		return Mono.just(accountId).flatMap(accountRepository::findById)
-							.flatMap(account -> {
-								if (account == null) {
-									return Mono.error(new AccountNotFoundException());
-								} else if (account.getAccountStatus().equals(AccountStatus.ACTIVE)) {
-									account.setAccountStatus(AccountStatus.INACTIVE);
-									return accountRepository.save(account).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)));
-								} else {
-									return Mono.error(new RuntimeException("Given Account " + accountId + " is already inactive!!!"));
-								}
-							});
-	}
-	
-	// Deposit Account
-	@PostMapping("/accounts/{accountId}/deposit/{amount}")
-	private Mono<ResponseEntity<Void>> depositAccount(@PathVariable String accountId, @PathVariable double amount) {
-		return accountRepository.findById(accountId)
-				.map(existingAccount -> {existingAccount.setBalance(existingAccount.getBalance() + amount); return existingAccount;})
-				.flatMap(existingAccount -> accountRepository.save(existingAccount).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("accountId: " + accountId + " is not found!!!")));
-	}
-	
-	@PostMapping("/accounts/{accountId}/withdraw/{amount}")
-	private Mono<ResponseEntity<Void>> withdrawAccount(@PathVariable String accountId, @PathVariable double amount) {
-		return accountRepository.findById(accountId)
-				.flatMap(existingAccount -> { if (existingAccount.getBalance() >= amount) { 
-											  existingAccount.setBalance(existingAccount.getBalance() - amount); 
-										  } else {
-											  return Mono.error(new IllegalArgumentException("Given Withdrawal Amount" + amount + " is higeher than Account Balance: " + existingAccount.getBalance()));
-										  }
-										  return Mono.just(existingAccount);
-										})
-				.flatMap(existingAccount -> accountRepository.save(existingAccount).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("accountId: " + accountId + " is not found!!!")));
+	@PostMapping("/accounts/{accountNumber}/inactiveAccount")
+	private Mono<ResponseEntity<Void>> inactiveAccount(@PathVariable long accountNumber) {
+		return accountRepository.retrieveAccountByAccountNumber(accountNumber)
+				.flatMap(account -> {
+					if (account.getAccountStatus().equals(AccountStatus.ACTIVE)) {
+						account.setAccountStatus(AccountStatus.INACTIVE);
+						return accountRepository.save(account).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)));
+					} else {
+						return Mono.error(new RuntimeException("Given Account " + accountNumber + " is already inactive!!!"));
+					}
+				}).switchIfEmpty(Mono.error(new AccountNotFoundException("AccountNumber: " + accountNumber + " is not found!!!")));
 	}
 	
 	// Delete account methods
@@ -219,14 +198,14 @@ public class AccountResource {
 	private Mono<ResponseEntity<Void>> deleteAccountById(@PathVariable String accountId) {
 		return accountRepository.findById(accountId)
 					.flatMap(existingAccount -> accountRepository.delete(existingAccount).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-					.switchIfEmpty(Mono.error(new AccountNotFoundException("accountId: " + accountId + " is not found!!!")));
+					.switchIfEmpty(Mono.error(new AccountNotFoundException("AccountId: " + accountId + " is not found!!!")));
 	}
 	
-	@DeleteMapping("/accounts/{customerId}/account/{accountNumber}")
-	private Mono<ResponseEntity<Void>> deleteAccountByCustomerAndAccountNumber(@PathVariable String customerId, @PathVariable Long accountNumber) {
-		return accountRepository.findOne(Example.of(new Account(null, customerId, accountNumber, null, null, null, null)))
+	@DeleteMapping("/accounts/{customerNumber}/account/{accountNumber}")
+	private Mono<ResponseEntity<Void>> deleteAccountByCustomerAndAccountNumber(@PathVariable Long customerNumber, @PathVariable Long accountNumber) {
+		return accountRepository.retrieveAccountByAccountNumber(accountNumber)
 				.flatMap(existingAccount -> accountRepository.delete(existingAccount).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account belongs to given customerId: " + customerId + " and is accountNumber" + accountNumber + " !!!")));
+				.switchIfEmpty(Mono.error(new AccountNotFoundException("No account belongs to given customerNumber: " + customerNumber + " and is accountNumber" + accountNumber + " !!!")));
 		
 	}	
 
