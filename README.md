@@ -87,8 +87,8 @@ account | /accounts/{accountNumber}/inactiveAccount | POST | inactive the accoun
 account | /accounts/{accountId} | DELETE | deletes the account by given accountId
 account | /accounts/{customerNumber}/account/{accountNumber} | DELETE | deletes the account by given customer and account number
 
-
-
+### Testing
+[Example Postman Collection](https://github.com/nsylmz/payX/blob/master/PayX.postman_collection.json)
 
 
 
