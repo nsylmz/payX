@@ -56,7 +56,7 @@ account | 8080
 - Run "docker run --name account -p 8080:8080 account" on cmd
 
 ### API Documentation
-*All resource should called over Zuul API GW with http://localhost:8765/{appName}/{resourceURI} template URL!!
+*All resource should called over Zuul API GW with http://localhost:8765/{appName}/{resourceURI} template URL!!*
 
 AppName | Resource URI | Method | Description
 ------------ | ------------- | ------------- | -------------
