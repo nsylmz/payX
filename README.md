@@ -1,6 +1,8 @@
 # payX
 An Example Payment Backend Application with MicroServices Architecture
 
+![GitHub Logo](/images/logo.png)
+
 #### Used Technologies & Architectures & Principles & Disciplines:
 - MicroServices Architecture
 - SpringBoot(starter version 2.2.4.RELEASE)
