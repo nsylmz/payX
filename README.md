@@ -1,7 +1,7 @@
 # payX
 An Example Payment Backend Application with MicroServices Architecture
 
-![GitHub Logo](/images/logo.png)
+![Architecture](https://github.com/nsylmz/payX/blob/master/PayDay%20Design.jpg)
 
 #### Used Technologies & Architectures & Principles & Disciplines:
 - MicroServices Architecture
