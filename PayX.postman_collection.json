@@ -18,29 +18,20 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"owner\": \"enes\",\n\t\"value\": \"10.00\"\n}"
+					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8080/accounts",
+					"raw": "http://localhost:8765/account/accounts/2/openDebitAccount",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8765",
 					"path": [
-						"accounts"
-					],
-					"query": [
-						{
-							"key": "owner",
-							"value": "enes",
-							"disabled": true
-						},
-						{
-							"key": "value",
-							"value": "10,00",
-							"disabled": true
-						}
+						"account",
+						"accounts",
+						"2",
+						"openDebitAccount"
 					]
 				}
 			},
@@ -53,35 +44,26 @@
 				"header": [
 					{
 						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
+						"type": "text",
+						"value": "application/json"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"owner\": \"enes\",\n\t\"value\": \"10.00\"\n}"
+					"raw": ""
 				},
 				"url": {
-					"raw": "http://localhost:8080/accounts",
+					"raw": "http://localhost:8765/acount/accounts/1/openDepositAccount",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8765",
 					"path": [
-						"accounts"
-					],
-					"query": [
-						{
-							"key": "owner",
-							"value": "enes",
-							"disabled": true
-						},
-						{
-							"key": "value",
-							"value": "10,00",
-							"disabled": true
-						}
+						"acount",
+						"accounts",
+						"1",
+						"openDepositAccount"
 					]
 				}
 			},
@@ -106,13 +88,14 @@
 					"raw": "{\n\t\"owner\": \"enes\",\n\t\"value\": \"10.00\"\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/accounts/getAccountByNumber/2",
+					"raw": "http://localhost:8765/acount/accounts/getAccountByNumber/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8765",
 					"path": [
+						"acount",
 						"accounts",
 						"getAccountByNumber",
 						"2"
@@ -136,6 +119,33 @@
 		{
 			"name": "Retrieve Account",
 			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8765/account/accounts/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"account",
+						"accounts",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "withdrawFromAccount",
+			"request": {
 				"method": "POST",
 				"header": [
 					{
@@ -146,41 +156,20 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"owner\": \"enes\",\n\t\"value\": \"10.00\"\n}"
+					"raw": "{\n\t\"accountNumber\": \"1\",\n\t\"description\": \"ATM'den para çekme\",\n\t\"amount\": \"16\"\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/accounts",
+					"raw": "http://localhost:8765/account/transactions/withdraw",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "8765",
 					"path": [
-						"accounts"
-					],
-					"query": [
-						{
-							"key": "owner",
-							"value": "enes",
-							"disabled": true
-						},
-						{
-							"key": "value",
-							"value": "10,00",
-							"disabled": true
-						}
+						"account",
+						"transactions",
+						"withdraw"
 					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "withdrawFromAccount",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": ""
 				}
 			},
 			"response": []
@@ -188,10 +177,30 @@
 		{
 			"name": "depositTransaction",
 			"request": {
-				"method": "GET",
-				"header": [],
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"accountNumber\": \"1\",\n\t\"description\": \"ATM'den para yatırma\",\n\t\"amount\": \"18.01\"\n}"
+				},
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/account/transactions/deposit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"account",
+						"transactions",
+						"deposit"
+					]
 				}
 			},
 			"response": []
@@ -199,10 +208,35 @@
 		{
 			"name": "SignUpCustomer",
 			"request": {
-				"method": "GET",
-				"header": [],
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Enes\",\n\t\"lastName\": \"Yılmaz\",\n\t\"email\": \"asd@gmail.com\",\n\t\"password\": \"asd123\",\n\t\"phoneNumber\": \"1234562255\",\n\t\"gender\": \"MALE\",\n\t\"birthDate\": \"1980-01-01\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/customer/signUp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"customer",
+						"signUp"
+					]
 				}
 			},
 			"response": []
@@ -213,7 +247,16 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/customer/customers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"customer",
+						"customers"
+					]
 				}
 			},
 			"response": []
@@ -224,7 +267,17 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/customer/customer/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"customer",
+						"customer",
+						"1"
+					]
 				}
 			},
 			"response": []
@@ -232,10 +285,29 @@
 		{
 			"name": "SignIn",
 			"request": {
-				"method": "GET",
-				"header": [],
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"asd@gmail.com\",\n\t\"password\": \"asd123\"\n}"
+				},
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/customer/signIn",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"customer",
+						"signIn"
+					]
 				}
 			},
 			"response": []
@@ -246,7 +318,18 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/customer/customer/checkCustomer/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"customer",
+						"customer",
+						"checkCustomer",
+						"1"
+					]
 				}
 			},
 			"response": []
@@ -257,7 +340,18 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "http://localhost:8765/account/transactions/1/accountTransactionList",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8765",
+					"path": [
+						"account",
+						"transactions",
+						"1",
+						"accountTransactionList"
+					]
 				}
 			},
 			"response": []
