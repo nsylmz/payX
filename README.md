@@ -11,12 +11,14 @@ An Example Payment Backend Application with MicroServices Architecture
 - Returning proper HttpStatus codes(200,201,404,400,500)
 - Generic Exception handling(CustomerNotFoundException, UserNotFoundException)
 - Validation with javax.validation api(example in Account and Customer documents)
+- DTO (example on Transaction at Account module)
 - HATEOAS(in HttpStatus.created, example -->/account/accounts/2/openDebitAccount)
 - Spring Cloud Feign Client(example usage in AccountResource.openDebitAccount and CustomerServiceProxy)
 - Spring Cloud Ribbon Load Balancer(example usage in AccountResource.openDebitAccount and CustomerServiceProxy)
 - Spring Cloud Config Server(in Docker you will use prod env values)
 - Netflix Eureka Naming Server
 - Netflix Zuul API Gateway
+- Logging filter on Netflix Zuul API Gateway
 - Docker configurations with DockerFile
 
 #### Not Achived and future improvement steps:
@@ -52,6 +54,41 @@ account | 8080
 - Run "cd ../Account" on cmd
 - Run "mvnw package && docker build -f Dockerfile -t account ." on cmd
 - Run "docker run --name account -p 8080:8080 account" on cmd
+
+### API Documentation
+*All resource should called over Zuul API GW with http://localhost:8765/{appName}/{resourceURI} template URL!!
+
+AppName | Resource URI | Method | Description
+------------ | ------------- | ------------- | -------------
+customer | /signUp | POST | create customer
+customer | /signIn | POST | checks given email & password. Returns 200 if it is correct.
+customer | /customers | GET | get all customers
+customer | /customers | GET | get all customers
+customer | /customer/checkCustomer/{customerNumber} | GET | checks customer number is correct
+customer | /customer/{customerNumber} | GET | get customer by given customer number
+account | /accounts/getAccountById/{accountId} | GET | get account by given accountId(MongoDB Id)
+account | /accounts/getAccountByNumber/{accountNumber} | GET | get account by given accountNumber
+account | /accounts/{customerNumber} | GET | get customer's all accounts
+account | /accounts/{customerNumber}/account/{accountNumber} | GET | get customer's account by customer and account numbers
+account | /accounts/{customerNumber}/actives | GET | get customer's active accounts
+account | /accounts/{customerNumber}/inactives | GET | get customer's inactives accounts
+account | /accounts/{customerNumber}/debits | GET | get customer's debits accounts
+account | /accounts/{customerNumber}/debitActives | GET | get customer's debitActives accounts
+account | /accounts/{customerNumber}/debitInactives | GET | get customer's debitInactives accounts
+account | /accounts/{customerNumber}/deposits | GET | get customer's deposits accounts
+account | /accounts/{customerNumber}/depositActives | GET | get customer's depositActives accounts
+account | /accounts/{customerNumber}/depositInactives | GET | get customer's depositInactives accounts
+account | /accounts/{customerNumber}/openDebitAccount | POST | creates debit account for given customer number
+account | /accounts/{customerNumber}/openDepositAccount | POST | creates deposit account for given customer number
+account | /accounts/{accountNumber}/activeAccount | POST | activates the account for given account number
+account | /accounts/{accountNumber}/inactiveAccount | POST | inactive the account for given account number
+account | /accounts/{accountId} | DELETE | deletes the account by given accountId
+account | /accounts/{customerNumber}/account/{accountNumber} | DELETE | deletes the account by given customer and account number
+
+
+
+
+
 
 
 
