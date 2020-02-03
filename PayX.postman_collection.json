@@ -47,47 +47,6 @@
 			"response": []
 		},
 		{
-			"name": "OpenDebitAccount Copy",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"owner\": \"enes\",\n\t\"value\": \"10.00\"\n}"
-				},
-				"url": {
-					"raw": "http://localhost:8080/accounts",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"accounts"
-					],
-					"query": [
-						{
-							"key": "owner",
-							"value": "enes",
-							"disabled": true
-						},
-						{
-							"key": "value",
-							"value": "10,00",
-							"disabled": true
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "OpenDepositAccount",
 			"request": {
 				"method": "POST",
