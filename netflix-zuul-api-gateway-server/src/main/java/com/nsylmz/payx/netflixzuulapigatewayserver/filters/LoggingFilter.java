@@ -1,4 +1,4 @@
-package com.nsylmz.payx.netflixzuulapigatewayserver;
+package com.nsylmz.payx.netflixzuulapigatewayserver.filters;
 
 import javax.servlet.http.HttpServletRequest;
 
