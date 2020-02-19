@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Document
-@CompoundIndex(def = "{'roleId':1, 'userId':1}", name = "user_role_index")
+@CompoundIndex(def = "{'roleId':1, 'userId':1}", unique = true, name = "user_role_index")
 public class UserRole {
 	
 	private String id;

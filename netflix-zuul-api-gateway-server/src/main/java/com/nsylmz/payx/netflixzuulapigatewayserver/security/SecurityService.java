@@ -1,18 +1,20 @@
 package com.nsylmz.payx.netflixzuulapigatewayserver.security;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.nsylmz.payx.netflixzuulapigatewayserver.exception.AuthException;
+import com.nsylmz.payx.netflixzuulapigatewayserver.proxy.UserServiceProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.nsylmz.payx.netflixzuulapigatewayserver.exception.AuthException;
-import com.nsylmz.payx.netflixzuulapigatewayserver.proxy.UserServiceProxy;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class SecurityService implements UserDetailsService {
@@ -21,15 +23,15 @@ public class SecurityService implements UserDetailsService {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     
-    //@Autowired
-    //private AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
     
     @Autowired
     private UserServiceProxy userServiceProxy;
     
     public String login(String username, String password) {
         try {
-            //authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             List<String> userRoles = userServiceProxy.getUserRolesByEmail(username);
             if (userRoles == null || userRoles.size() == 0 || userRoles.get(0) == null) {
                 throw new AuthException("Invalid username or password.");

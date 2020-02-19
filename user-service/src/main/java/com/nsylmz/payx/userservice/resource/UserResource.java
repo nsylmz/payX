@@ -1,9 +1,11 @@
 package com.nsylmz.payx.userservice.resource;
 
 import java.net.URI;
+import java.util.List;
 
 import javax.validation.Valid;
 
+import com.nsylmz.payx.userservice.exception.UserRoleNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +57,12 @@ public class UserResource {
 	
 	@PostMapping("/user/{userNumber}/addRole/{roleId}")
 	public Mono<ResponseEntity<Void>> addRoleToUser(@PathVariable long userNumber, @PathVariable String roleId) {
-		roleRepository.findById(roleId).switchIfEmpty(Mono.error(new RoleNotFoundException("No Role Found In DB with given id: " + roleId +" !!!")));
-		return userRepository.retrieveUserByUserNumber(userNumber).map(existingUser -> UserRole.builder().roleId(roleId).userId(existingUser.getId()).build())
-			.flatMap(userRole -> userRoleRepository.save(userRole).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-			.switchIfEmpty(Mono.error(new UserNotFoundException("userNumber: " + userNumber + " is not found!!!")));
+		return roleRepository.findById(roleId)
+				.flatMap(existingRole -> userRepository.retrieveUserByUserNumber(userNumber)
+						.map(existingUser -> UserRole.builder().roleId(roleId).userId(existingUser.getId()).build())
+						.switchIfEmpty(Mono.error(new UserNotFoundException("userNumber: " + userNumber + " is not found!!!"))))
+				.flatMap(userRole -> userRoleRepository.save(userRole).then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
+				.switchIfEmpty(Mono.error(new RoleNotFoundException("No Role Found In DB with given id: " + roleId +" !!!")));
 	}
 	
 	
@@ -90,11 +94,12 @@ public class UserResource {
 	}
 	
 	@GetMapping("/user/getUserRolesByEmail/{email}")
-	public Flux<String> getUserRolesByEmail(@PathVariable String email) {
+	public Mono<List<String>> getUserRolesByEmail(@PathVariable String email) {
 		return userRepository.retrieveUserByEmail(email)
-				.flatMapMany(existingUser -> userRoleRepository.findAll(Example.of(new UserRole(null, null, existingUser.getId()))))
+				.flatMapMany(existingUser -> userRoleRepository.findAll(Example.of(new UserRole(null, null, existingUser.getId())))
+                                                .switchIfEmpty(Mono.error(new UserRoleNotFoundException("No User Role Found In DB for User Id " + existingUser.getId() + " !!!"))))
 				.flatMap(existingUserRoles -> roleRepository.findById(existingUserRoles.getRoleId()))
-				.map(existingRoles -> existingRoles.getRole())
+				.map(existingRoles -> existingRoles.getRole()).collectList()
 				.switchIfEmpty(Mono.error(new UserNotFoundException("No User Found In DB with email address : " + email + " !!!")));
 	}
 	
