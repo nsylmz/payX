@@ -2,6 +2,7 @@ package com.nsylmz.payx.netflixzuulapigatewayserver.security;
 
 import com.nsylmz.payx.netflixzuulapigatewayserver.exception.AuthException;
 import com.nsylmz.payx.netflixzuulapigatewayserver.proxy.UserServiceProxy;
+import com.nsylmz.payx.netflixzuulapigatewayserver.repository.JwtTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +20,9 @@ import java.util.stream.Collectors;
 @Service
 public class SecurityService implements UserDetailsService {
 
-	
+    @Autowired
+    private JwtTokenRepository jwtTokenRepository;
+
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     
@@ -48,7 +51,9 @@ public class SecurityService implements UserDetailsService {
     }
 
     public boolean logout(String token) {
-    	userServiceProxy.removeToken(token);
+        //userServiceProxy.removeToken(token);
+        jwtTokenRepository.deleteById(token);
+    	// TODO: jwt blacklist
     	return true;
     }
 

@@ -23,7 +23,8 @@ public interface UserServiceProxy {
 	
 	@GetMapping("/role/{id}")
 	public RoleBean retrieveRole(@PathVariable("id") String id);
-	
+
+	/*
 	@GetMapping("/token/{token}")
 	public TokenBean retrieveToken(@PathVariable("token") String token);
 	
@@ -32,5 +33,5 @@ public interface UserServiceProxy {
 	
 	@DeleteMapping("/token/{token}")
 	public ResponseEntity<Void> removeToken(@PathVariable("token") String token);
-
+*/
 }

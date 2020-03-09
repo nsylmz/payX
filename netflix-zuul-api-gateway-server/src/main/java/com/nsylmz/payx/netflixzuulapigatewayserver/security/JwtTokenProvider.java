@@ -1,35 +1,33 @@
 package com.nsylmz.payx.netflixzuulapigatewayserver.security;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-
+import com.nsylmz.payx.netflixzuulapigatewayserver.model.JwtToken;
+import com.nsylmz.payx.netflixzuulapigatewayserver.repository.JwtTokenRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import com.nsylmz.payx.netflixzuulapigatewayserver.proxy.TokenBean;
-import com.nsylmz.payx.netflixzuulapigatewayserver.proxy.UserServiceProxy;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtTokenProvider {
     private static final String AUTH="auth";
-    private static final String AUTHORIZATION="Authorization";
+    private static final String AUTHORIZATION="bearer";
     private String secretKey="secret-key";
     private long validityInMilliseconds = 3600000; // 1h
 
     @Autowired
-    private UserServiceProxy userServiceProxy;
+    private JwtTokenRepository jwtTokenRepository;
 
     @PostConstruct
     protected void init() {
@@ -50,7 +48,8 @@ public class JwtTokenProvider {
                 .setExpiration(validity)//
                 .signWith(SignatureAlgorithm.HS256, secretKey)//
                 .compact();
-        userServiceProxy.addToken(new TokenBean(token));
+        jwtTokenRepository.save(new JwtToken(token));
+        //userServiceProxy.addToken(new TokenBean(token));
         return token;
     }
 
@@ -70,15 +69,12 @@ public class JwtTokenProvider {
             return true;
     }
     public boolean isTokenPresentInDB (String token) {
-    	userServiceProxy.retrieveToken(token);
-        return true;
+        return jwtTokenRepository.existsById(token);
     }
 
     public UserDetails getUserDetails(String token) {
-        String userName =  getUsername(token);
         List<String> roleList = getRoleList(token);
-        UserDetails userDetails = new PayXUserDetails(userName, roleList.toArray(new String[roleList.size()]));
-        return userDetails;
+        return new PayXUserDetails(getUsername(token), roleList.toArray(new String[roleList.size()]));
     }
     
     @SuppressWarnings("unchecked")
